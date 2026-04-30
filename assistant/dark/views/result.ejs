@@ -168,7 +168,7 @@
     </div>
 
     <div class="retake-section">
-      <a href="/" class="btn btn--ghost">↩ Take the Test Again</a>
+      <a href="<%= basePath %>/" class="btn btn--ghost">↩ Take the Test Again</a>
     </div>
 
   </div>
@@ -184,5 +184,5 @@
     siteUrl: <%- JSON.stringify(siteUrl) %>
   };
 </script>
-<script src="/js/result.js"></script>
+<script src="<%= basePath %>/js/result.js"></script>
 <%- include('partials/footer') %>

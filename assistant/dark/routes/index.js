@@ -73,16 +73,16 @@ router.get('/', (req, res) => {
 router.post('/start', (req, res) => {
   const nickname = (req.body.nickname || '').trim();
   if (!nickname || nickname.length < 2 || nickname.length > 40) {
-    return res.redirect('/?error=Please+enter+a+valid+nickname+(2–40+characters).');
+    return res.redirect(req.baseUrl + '/?error=Please+enter+a+valid+nickname+(2–40+characters).');
   }
   req.session.nickname = nickname;
   req.session.quizStarted = true;
-  res.redirect('/quiz');
+  res.redirect(req.baseUrl + '/quiz');
 });
 
 // GET /quiz — Questionnaire page
 router.get('/quiz', (req, res) => {
-  if (!req.session.nickname) return res.redirect('/');
+  if (!req.session.nickname) return res.redirect(req.baseUrl + '/');
   res.render('quiz', {
     title: 'Dark Triad Quiz',
     nickname: req.session.nickname,
@@ -128,7 +128,7 @@ router.post('/submit', submitLimiter, async (req, res) => {
       apiResponse = response.data;
     } catch (apiErr) {
       console.error('API error:', apiErr.response?.data || apiErr.message);
-      return res.redirect('/quiz?error=analysis_failed');
+      return res.redirect(req.baseUrl + '/quiz?error=analysis_failed');
     }
 
     const report = apiResponse.report || {};
@@ -155,19 +155,19 @@ router.post('/submit', submitLimiter, async (req, res) => {
     });
 
     req.session.resultId = resultDoc._id.toString();
-    res.redirect('/result');
+    res.redirect(req.baseUrl + '/result');
   } catch (err) {
     console.error('Submit error:', err);
-    res.redirect('/quiz?error=Please+answer+all+questions.');
+    res.redirect(req.baseUrl + '/quiz?error=Please+answer+all+questions.');
   }
 });
 
 // GET /result — Show result
 router.get('/result', async (req, res) => {
-  if (!req.session.resultId) return res.redirect('/');
+  if (!req.session.resultId) return res.redirect(req.baseUrl + '/');
   try {
     const result = await Result.findById(req.session.resultId).lean();
-    if (!result) return res.redirect('/');
+    if (!result) return res.redirect(req.baseUrl + '/');
 
     res.render('result', {
       title: `${result.nickname}'s Dark Profile`,
@@ -179,7 +179,7 @@ router.get('/result', async (req, res) => {
     });
   } catch (err) {
     console.error('Result fetch error:', err);
-    res.redirect('/');
+    res.redirect(req.baseUrl + '/');
   }
 });
 

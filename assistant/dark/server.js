@@ -78,6 +78,15 @@ const globalLimiter = rateLimit({
 });
 app.use(globalLimiter);
 
+// ── Expose mount prefix to all EJS templates ─────────────────────
+// When mounted at /dark-traid, req.baseUrl === '/dark-traid'.
+// When run standalone, req.baseUrl === ''.
+// Templates use <%= basePath %> for all asset/nav hrefs.
+app.use((req, res, next) => {
+  res.locals.basePath = req.baseUrl || '';
+  next();
+});
+
 // Routes
 app.use('/', indexRouter);
 
@@ -102,9 +111,14 @@ app.use((err, req, res, next) => {
   });
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Dark Triad Detector running on http://localhost:${PORT}`);
-});
+// When run directly (`node server.js`) start listening.
+// When required by a parent server (e.g. mounted at /dark-traid)
+// just export the app — the parent handles the port.
+if (require.main === module) {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`Dark Triad Detector running on http://localhost:${PORT}`);
+  });
+}
 
 module.exports = app;

@@ -19,29 +19,29 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
 
   <!-- Styles -->
-  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="<%= basePath %>/css/style.css" />
 </head>
 <body>
   <header class="site-header">
     <div class="container header-inner">
-      <a href="/" class="brand" aria-label="Dark Triad Detector Home">
+      <a href="<%= basePath %>/" class="brand" aria-label="Dark Triad Detector Home">
         <span class="brand-icon" aria-hidden="true">🧠</span>
         <span class="brand-name">Dark Triad <span class="brand-accent">Detector</span></span>
       </a>
       <nav class="site-nav" aria-label="Primary navigation">
-        <a href="/" class="nav-link">Home</a>
-        <a href="/quiz" class="nav-link">Take the Quiz</a>
-        <a href="/privacy" class="nav-link">Privacy</a>
+        <a href="<%= basePath %>/" class="nav-link">Home</a>
+        <a href="<%= basePath %>/quiz" class="nav-link">Take the Quiz</a>
+        <a href="<%= basePath %>/privacy" class="nav-link">Privacy</a>
       </nav>
       <button class="nav-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-nav">
         <span></span><span></span><span></span>
       </button>
     </div>
     <div class="mobile-nav" id="mobile-nav" hidden>
-      <a href="/" class="nav-link">Home</a>
-      <a href="/quiz" class="nav-link">Take the Quiz</a>
-      <a href="/privacy" class="nav-link">Privacy</a>
-      <a href="/terms" class="nav-link">Terms</a>
+      <a href="<%= basePath %>/" class="nav-link">Home</a>
+      <a href="<%= basePath %>/quiz" class="nav-link">Take the Quiz</a>
+      <a href="<%= basePath %>/privacy" class="nav-link">Privacy</a>
+      <a href="<%= basePath %>/terms" class="nav-link">Terms</a>
     </div>
   </header>
   <main id="main-content">

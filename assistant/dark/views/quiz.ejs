@@ -23,7 +23,7 @@
       <div class="alert alert--error" role="alert"><%= error %></div>
     <% } %>
 
-    <form action="/submit" method="POST" id="quizForm" novalidate>
+    <form action="<%= basePath %>/submit" method="POST" id="quizForm" novalidate>
       <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
       <% const sections = [
         { key: 'machiavellianism', label: 'Part I — Machiavellianism', emoji: '🎭',
@@ -95,5 +95,5 @@
   <p class="loading-text">🤖 The AI is analysing your darkness…<br><small style="opacity:.6;font-size:.8em">This may take 30–60 seconds.</small></p>
 </div>
 
-<script src="/js/quiz.js"></script>
+<script src="<%= basePath %>/js/quiz.js"></script>
 <%- include('partials/footer') %>
