@@ -1,0 +1,99 @@
+<%- include('partials/header') %>
+
+<section class="quiz-section">
+  <div class="container">
+    <div class="quiz-header">
+      <div class="quiz-meta">
+        <span class="quiz-badge">Participant: <strong><%= nickname %></strong></span>
+        <span class="quiz-badge quiz-badge--count">27 Questions</span>
+      </div>
+      <h1 class="quiz-title">Short Dark Triad Assessment</h1>
+      <p class="quiz-intro">
+        Rate each statement on a scale of <strong>1 (Disagree)</strong> to <strong>5 (Agree)</strong>.
+        Answer honestly — the analysis is only as accurate as your responses.
+        There are no right or wrong answers.
+      </p>
+      <div class="progress-bar-wrap" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="27" aria-label="Quiz progress">
+        <div class="progress-bar" id="progressBar"></div>
+        <span class="progress-label" id="progressLabel">0 / 27 answered</span>
+      </div>
+    </div>
+
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="alert alert--error" role="alert"><%= error %></div>
+    <% } %>
+
+    <form action="/submit" method="POST" id="quizForm" novalidate>
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <% const sections = [
+        { key: 'machiavellianism', label: 'Part I — Machiavellianism', emoji: '🎭',
+          desc: 'How you approach strategy, power, and interpersonal manipulation.' },
+        { key: 'narcissism',       label: 'Part II — Narcissism',       emoji: '👑',
+          desc: 'Your sense of self-importance, entitlement, and need for admiration.' },
+        { key: 'psychopathy',      label: 'Part III — Psychopathy',     emoji: '⚡',
+          desc: 'Your impulsivity, callousness, and attitude toward rules and risk.' }
+      ] %>
+
+      <% let qNum = 0; %>
+      <% sections.forEach(section => { %>
+        <div class="quiz-block">
+          <div class="quiz-block__header">
+            <span class="quiz-block__emoji" aria-hidden="true"><%= section.emoji %></span>
+            <div>
+              <h2 class="quiz-block__title"><%= section.label %></h2>
+              <p class="quiz-block__desc"><%= section.desc %></p>
+            </div>
+          </div>
+
+          <div class="questions-list">
+            <% questions[section.key].forEach(q => { %>
+              <% qNum++; %>
+              <fieldset class="question" data-question="<%= qNum %>">
+                <legend class="question__text">
+                  <span class="question__num"><%= qNum %>.</span>
+                  <%= q.text %>
+                </legend>
+                <div class="rating-scale">
+                  <span class="rating-scale__label rating-scale__label--left">Disagree</span>
+                  <div class="rating-options" role="group">
+                    <% for (let v = 1; v <= 5; v++) { %>
+                      <label class="rating-option">
+                        <input
+                          type="radio"
+                          name="<%= q.id %>"
+                          value="<%= v %>"
+                          required
+                          class="rating-radio"
+                          aria-label="<%= v %>"
+                        />
+                        <span class="rating-pip"><%= v %></span>
+                      </label>
+                    <% } %>
+                  </div>
+                  <span class="rating-scale__label rating-scale__label--right">Agree</span>
+                </div>
+              </fieldset>
+            <% }) %>
+          </div>
+        </div>
+      <% }) %>
+
+      <div class="quiz-submit-wrap">
+        <p class="quiz-submit-note" id="submitNote" aria-live="polite"></p>
+        <button type="submit" class="btn btn--primary btn--lg" id="submitBtn" disabled>
+          <span class="btn-text">Analyse My Darkness</span>
+          <span class="btn-spinner" hidden aria-hidden="true"></span>
+        </button>
+      </div>
+    </form>
+  </div>
+</section>
+
+<!-- Loading overlay (shown while AI analyses) -->
+<div class="loading-overlay" id="loadingOverlay" hidden aria-live="assertive" role="status">
+  <div class="loading-spinner" aria-hidden="true"></div>
+  <p class="loading-text">🤖 The AI is analysing your darkness…<br><small style="opacity:.6;font-size:.8em">This may take 30–60 seconds.</small></p>
+</div>
+
+<script src="/js/quiz.js"></script>
+<%- include('partials/footer') %>
