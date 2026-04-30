@@ -1,0 +1,11 @@
+torch
+pandas
+numpy
+matplotlib
+tqdm
+langchain
+langchain_google_genai
+python-dotenv
+fastapi
+uvicorn
+python-multipart
