@@ -1,6 +1,6 @@
 # Dark Psychopaths Detector
 
-A machine learning-based detection system designed to identify and classify dark triad traits (narcissism, Machiavellianism, and psychopathy) in behavioral and textual data.
+A machine learning-based detection system designed to identify and classify dark triad traits (narcissism, Machiavellianism, and psychopathy) in behavioral and textual data and generate a dark funny Humor message based on results using LLM .
 
 ## Overview
 
@@ -11,6 +11,7 @@ The Dark Psychopaths Detector is a sophisticated Python application that leverag
 - **Dark Triad Detection**: Identifies narcissism, Machiavellianism, and psychopathy traits
 - **Multi-Modal Analysis**: Supports both textual and behavioral data inputs
 - **Machine Learning Integration**: Employs state-of-the-art ML models for classification
+- **AI Humor Message**: Using a LLM generate a Funny Dark Humor Message 
 - **Scalable Architecture**: Designed for processing large datasets efficiently
 - **Comprehensive Reporting**: Generates detailed analysis reports with confidence scores
 - **API Support**: RESTful API for easy integration into existing systems
@@ -79,7 +80,7 @@ analysis:
 ### API Endpoint
 
 ```bash
-curl -X POST http://localhost:5000/analyze \
+curl -X POST http://localhost:8000/analyze \
   -H "Content-Type: application/json" \
   -d '{"text": "input text"}'
 ```
