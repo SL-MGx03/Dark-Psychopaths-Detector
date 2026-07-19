@@ -1,0 +1,12 @@
+<%- include('partials/header') %>
+
+<section class="section error-page">
+  <div class="container error-inner">
+    <div class="error-code"><%= code || 500 %></div>
+    <h1 class="error-title"><%= title || 'Something went wrong' %></h1>
+    <p class="error-message"><%= message || 'An unexpected error occurred.' %></p>
+    <a href="<%= basePath %>/" class="btn btn--primary">← Return Home</a>
+  </div>
+</section>
+
+<%- include('partials/footer') %>
