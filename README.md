@@ -165,7 +165,7 @@ Recommended environment: Python 3.8+.
 - The model is an autoencoder producing continuous latent values; these are not clinical diagnoses. Do not use outputs for clinical or high-stakes decisions.
 - Questionnaire bias: personality inference from questionnaire responses is subject to response bias, sample bias, and other limitations common to psychometrics. This repository does not include bias analysis.
 
-## Future improvements (realistic next steps)
+## Future improvements 
 - Add a training script and configuration to reproduce checkpoints and training logs.
 - Include or reference the data/codebook used for inputs so readers can validate preprocessing and mapping from items to item codes.
 - Add evaluation scripts and stored validation results (train/val/test splits, metrics, and confusion analysis if transforming to classification).
