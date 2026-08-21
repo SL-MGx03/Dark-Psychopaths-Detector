@@ -10,6 +10,11 @@ The "Dark Triad" refers to three correlated personality traits commonly studied 
 
 This project implements a compact neural autoencoder (PyTorch) that maps 27 questionnaire items -> a 3-dimensional encoded representation -> reconstructs the input. The encoded 3-dim vector is used as the trait estimates.
 
+> Disclaimer: This project is an experimental machine learning project
+> for analyzing Dark Triad personality-related data. It is not a medical,
+> psychological, or clinical diagnostic tool, and its predictions should not
+> be interpreted as professional psychological assessment or diagnosis.
+
 ## Key Features
 - PyTorch autoencoder model that encodes 27 questionnaire inputs to a 3-dimensional latent vector.
 - Input pipeline that reads tab-separated questionnaire CSV files (pandas).
