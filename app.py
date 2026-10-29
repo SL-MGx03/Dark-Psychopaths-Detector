@@ -2,7 +2,7 @@ import shutil
 import os
 import uuid
 import re
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from core import psycho_reader_agent, processing_lock
 
@@ -47,7 +47,10 @@ UPLOAD_DIR = "data"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 @app.post("/upload-results")
-async def upload_results(file: UploadFile = File(...)):
+async def upload_results(
+    file: UploadFile = File(...),
+    lang: str = Form("en")  # Accepts 'en' or 'si' from frontend Form data
+):
     if not file.filename.endswith('.csv'):
         raise HTTPException(status_code=400, detail="Only .csv files")
 
@@ -59,7 +62,8 @@ async def upload_results(file: UploadFile = File(...)):
 
     try:
         async with processing_lock:
-            results = psycho_reader_agent(file_path)
+            # Pass selected language to the agent
+            results = psycho_reader_agent(file_path, lang=lang)
             full_text = results["messages"][-1].content
             
             divided_report = parse_ai_report(full_text)
