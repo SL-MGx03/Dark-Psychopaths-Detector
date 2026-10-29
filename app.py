@@ -45,7 +45,7 @@ origins = [
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Set to ["*"] to guarantee CORS headers are sent during debugging
+    allow_origins=origins,  # Use defined origins list instead of "*"
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
