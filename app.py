@@ -4,6 +4,7 @@ import re
 import asyncio
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 from core import psycho_reader_agent, processing_lock
 
@@ -33,6 +34,7 @@ def parse_ai_report(text):
 
 app = FastAPI()
 
+# Allow all origins or specify exact domains
 origins = [
     "https://slmgx.live",
     "https://www.slmgx.live",
@@ -43,7 +45,8 @@ origins = [
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],  # Set to ["*"] to guarantee CORS headers are sent during debugging
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -56,25 +59,24 @@ async def upload_results(payload: SurveyPayload):
     if len(payload.answers) != 27:
         raise HTTPException(status_code=400, detail="Expected exactly 27 answers.")
 
-    # Write array to temp CSV for core agent functions
     unique_id = str(uuid.uuid4())
     file_path = os.path.join(UPLOAD_DIR, f"{unique_id}.csv")
 
     try:
+        # Write scores into a CSV file
         with open(file_path, "w") as f:
-            f.write(",".join(map(str, payload.answers)))
+            f.write(",".join(map(str, payload.answers)) + "\n")
 
         async with processing_lock:
+            # Execute agent
             results = psycho_reader_agent(file_path, lang=payload.lang)
             full_text = results["messages"][-1].content
             divided_report = parse_ai_report(full_text)
 
-        # Calculate averages (1.0 - 5.0 scale)
         mach = round(sum(payload.answers[0:9]) / 9.0, 1)
         narc = round(sum(payload.answers[9:18]) / 9.0, 1)
         psyc = round(sum(payload.answers[18:27]) / 9.0, 1)
 
-        # Extract summary or full message for LIZZY AI display
         ai_message = divided_report.get("summary") or full_text
 
         return {
@@ -85,6 +87,14 @@ async def upload_results(payload: SurveyPayload):
             "report": divided_report,
             "full_text": full_text
         }
+
+    except Exception as e:
+        # Prevent server unhandled crash so CORS headers are preserved
+        print(f"Error during execution: {str(e)}")
+        return JSONResponse(
+            status_code=500,
+            content={"detail": f"Backend processing error: {str(e)}"}
+        )
 
     finally:
         if os.path.exists(file_path):
