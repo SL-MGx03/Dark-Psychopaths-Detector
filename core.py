@@ -44,7 +44,7 @@ def handle_tool_errors(request, handler):
 def psycho_reader_agent(target_file: str, lang: str = "en"):
     tools = [get_dark_triad_scores, get_trait_definitions]
     llm = ChatGroq(
-        model="llama-3.3-70b-versatile", 
+        model="llama-3.1-8b-instant", 
         temperature=0.85,  # Higher temperature allows richer, uninhibited vocabulary
         groq_api_key=os.getenv("GROQ_API_KEY")
     )
