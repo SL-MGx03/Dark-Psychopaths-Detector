@@ -2,6 +2,7 @@ import os
 import uuid
 import re
 import asyncio
+import traceback
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -34,7 +35,6 @@ def parse_ai_report(text):
 
 app = FastAPI()
 
-# Allow all origins or specify exact domains
 origins = [
     "https://slmgx.live",
     "https://www.slmgx.live",
@@ -45,7 +45,7 @@ origins = [
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,  # Use defined origins list instead of "*"
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -63,12 +63,11 @@ async def upload_results(payload: SurveyPayload):
     file_path = os.path.join(UPLOAD_DIR, f"{unique_id}.csv")
 
     try:
-        # Write scores into a CSV file
+        # Save array as comma-separated values for the agent tool
         with open(file_path, "w") as f:
             f.write(",".join(map(str, payload.answers)) + "\n")
 
         async with processing_lock:
-            # Execute agent
             results = psycho_reader_agent(file_path, lang=payload.lang)
             full_text = results["messages"][-1].content
             divided_report = parse_ai_report(full_text)
@@ -89,8 +88,7 @@ async def upload_results(payload: SurveyPayload):
         }
 
     except Exception as e:
-        # Prevent server unhandled crash so CORS headers are preserved
-        print(f"Error during execution: {str(e)}")
+        print("Backend Execution Error Trace:\n", traceback.format_exc())
         return JSONResponse(
             status_code=500,
             content={"detail": f"Backend processing error: {str(e)}"}
