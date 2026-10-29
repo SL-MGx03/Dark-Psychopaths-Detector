@@ -1,7 +1,7 @@
 import asyncio
 import os
 from predict import report_to_llm
-from prompt import SYSTEM_PROMPT
+from prompt import get_system_prompt
 from dotenv import load_dotenv
 from langchain.agents import create_agent
 from langchain.tools import tool
@@ -41,17 +41,27 @@ def handle_tool_errors(request, handler):
             tool_call_id=request.tool_call["id"]
         )
 
-def psycho_reader_agent(target_file):
+def psycho_reader_agent(target_file: str, lang: str = "en"):
     tools = [get_dark_triad_scores, get_trait_definitions]
-    llm = ChatGroq(model="llama-3.3-70b-versatile", temperature=0.7, groq_api_key=os.getenv("GROQ_API_KEY"))
+    llm = ChatGroq(
+        model="llama-3.3-70b-versatile", 
+        temperature=0.85,  # Higher temperature allows richer, uninhibited vocabulary
+        groq_api_key=os.getenv("GROQ_API_KEY")
+    )
+    
+    # Load language-specific system prompt
+    system_prompt = get_system_prompt(lang)
+    
     agent = create_agent(
         model=llm,
         tools=tools,
         middleware=[handle_tool_errors],
-        system_prompt=SYSTEM_PROMPT
+        system_prompt=system_prompt
     )
 
+    if lang == "si":
+        input_text = f"මෙම ගොනුවේ ඇති ප්‍රතිඵල මත පදනම්ව මාගේ පෞරුෂත්වය සිංහලෙන් විශ්ලේෂණය කරන්න: {target_file}"
+    else:
+        input_text = f"Analyze my psychopath personality based on the results in this file: {target_file}"
 
-    input_text = f"Analyze my psychopath personality based on the results in this file: {target_file}"
     return agent.invoke({"messages": [{"role": "user", "content": input_text}]})
-
