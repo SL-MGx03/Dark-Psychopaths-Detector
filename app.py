@@ -1,10 +1,15 @@
-import shutil
 import os
 import uuid
 import re
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException
+import asyncio
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, Field
 from core import psycho_reader_agent, processing_lock
+
+class SurveyPayload(BaseModel):
+    answers: list[int] = Field(..., description="Array of 27 integer scores (1-5)")
+    lang: str = Field("en", description="Language code ('en' or 'si')")
 
 def parse_ai_report(text):
     sections = {
@@ -47,32 +52,40 @@ UPLOAD_DIR = "data"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 @app.post("/upload-results")
-async def upload_results(
-    file: UploadFile = File(...),
-    lang: str = Form("en")  # Accepts 'en' or 'si' from frontend Form data
-):
-    if not file.filename.endswith('.csv'):
-        raise HTTPException(status_code=400, detail="Only .csv files")
+async def upload_results(payload: SurveyPayload):
+    if len(payload.answers) != 27:
+        raise HTTPException(status_code=400, detail="Expected exactly 27 answers.")
 
+    # Write array to temp CSV for core agent functions
     unique_id = str(uuid.uuid4())
     file_path = os.path.join(UPLOAD_DIR, f"{unique_id}.csv")
 
-    with open(file_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
-
     try:
+        with open(file_path, "w") as f:
+            f.write(",".join(map(str, payload.answers)))
+
         async with processing_lock:
-            # Pass selected language to the agent
-            results = psycho_reader_agent(file_path, lang=lang)
+            results = psycho_reader_agent(file_path, lang=payload.lang)
             full_text = results["messages"][-1].content
-            
             divided_report = parse_ai_report(full_text)
-            
+
+        # Calculate averages (1.0 - 5.0 scale)
+        mach = round(sum(payload.answers[0:9]) / 9.0, 1)
+        narc = round(sum(payload.answers[9:18]) / 9.0, 1)
+        psyc = round(sum(payload.answers[18:27]) / 9.0, 1)
+
+        # Extract summary or full message for LIZZY AI display
+        ai_message = divided_report.get("summary") or full_text
+
         return {
+            "machiavellianism": mach,
+            "narcissism": narc,
+            "psychopathy": psyc,
+            "ai_message": ai_message,
             "report": divided_report,
             "full_text": full_text
         }
-    
+
     finally:
         if os.path.exists(file_path):
             os.remove(file_path)
